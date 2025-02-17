@@ -1,27 +1,33 @@
 import sqlite3
 
-# Conectar ao banco de dados (ou criar se não existir)
-conn = sqlite3.connect('estoque.db')
-cursor = conn.cursor()
+def conectar():
+    return sqlite3.connect('estoque.db')
 
-# Criar a tabela ESTOQUE, se não existir
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS ESTOQUE (
-    ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    Nome TEXT NOT NULL,
-    Quantidade INTEGER NOT NULL DEFAULT 0
-);
-""")
+def criar_tabela_produtos():
+    conn = conectar()
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS produtos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            quantidade INTEGER NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
-# Confirmar as mudanças e fechar a conexão
-conn.commit()
+def obter_produtos():
+    conn = conectar()
+    c = conn.cursor()
+    c.execute('SELECT id, nome, quantidade FROM produtos')
+    produtos = c.fetchall()
+    conn.close()
+    return produtos
 
-# Verificar se a tabela foi criada corretamente
-cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='ESTOQUE';")
-tabela = cursor.fetchone()
-if tabela:
-    print("Tabela ESTOQUE criada com sucesso!")
-else:
-    print("Erro ao criar a tabela ESTOQUE.")
+def atualizar_estoque(produto_id, nova_quantidade):
+    conn = conectar()
+    c = conn.cursor()
+    c.execute('UPDATE produtos SET quantidade = ? WHERE id = ?', (nova_quantidade, produto_id))
+    conn.commit()
+    conn.close()
 
-conn.close()
