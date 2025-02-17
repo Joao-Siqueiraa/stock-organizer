@@ -19,7 +19,7 @@ def criar_tabela_produtos():
 def obter_produtos():
     conn = conectar()
     c = conn.cursor()
-    c.execute('SELECT id, nome, quantidade FROM produtos')
+    c.execute('SELECT nome, quantidade FROM produtos')
     produtos = c.fetchall()
     conn.close()
     return produtos

@@ -1,5 +1,7 @@
 from database import obter_produtos, atualizar_estoque
 
+
+
 def verificar_estoque(produto_id):
     produtos = obter_produtos()
     for produto in produtos:
@@ -14,3 +16,4 @@ def atualizar_produto(produto_id, quantidade_vendida):
         atualizar_estoque(produto_id, nova_quantidade)
         return True
     return False
+
