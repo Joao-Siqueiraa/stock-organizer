@@ -47,29 +47,13 @@ def adicionar_produto_janela():
     tk.Button(tl, text="Salvar", font=("Century Gothic", 12), command=salvar_produto).pack(pady=10)
     tl.mainloop()
 
-def atualizar_lista_produtos(frame):
-    produtos = obter_produtos()
-    for widget in frame.winfo_children():
-        widget.destroy()
-    for idx, item in enumerate(produtos):
-        frame_produto = tk.Frame(frame, bg="MIDNIGHTBLUE")
-        frame_produto.pack(fill="x", padx=5, pady=5)
 
-        item_id = item["id"]
-        nome_produto = item["nome"]
-        estoque = item["estoque"]
-
-        label = tk.Label(frame_produto, text=f"{nome_produto}, Estoque: {estoque}", font=("Century Gothic", 12), bg="MIDNIGHTBLUE", fg='white')
-        label.pack(padx=5,pady=12,anchor="w")
-
-        frame_entry_button = tk.Frame(frame_produto, bg="MIDNIGHTBLUE")  
-        frame_entry_button.place(x=540,y=5)
+    
         
-        reduzir_entry = tk.Entry(frame_entry_button, width=5)
-        reduzir_entry.pack(padx=1, pady=1)
-        
-        reduzir_button = tk.Button(frame_entry_button, text="Go", font=("Century Gothic", 10), width=2, height=0, command=lambda id=item_id, entry=reduzir_entry: reduzir_estoque(id, entry))
-        reduzir_button.pack(side="right", padx=1, pady=1)
+    
+  
+
+
 
 def reduzir_estoque(produto_id, reduzir_entry):
     try:
@@ -128,15 +112,15 @@ def buscar_produtos_gui(entry, frame):
 
             label = tk.Label(frame_produto, text=f"{nome_produto}, Estoque: {estoque}", font=("Century Gothic", 12), bg="MIDNIGHTBLUE", fg='white')
             label.pack(padx=5,pady=12,anchor="w")
-
+            label.lower()
             frame_entry_button = tk.Frame(frame_produto, bg="MIDNIGHTBLUE")  
-            frame_entry_button.place(x=540,y=5)
+            frame_entry_button.place(x=500,y=5)
         
-            reduzir_entry = tk.Entry(frame_entry_button, width=5)
-            reduzir_entry.pack(padx=1, pady=1)
-        
-            reduzir_button = tk.Button(frame_entry_button, text="Go", font=("Century Gothic", 10), width=2, height=0, command=lambda id=item_id, entry=reduzir_entry: reduzir_estoque(id, entry))
-            reduzir_button.pack(side="right", padx=1, pady=1)
+            reduzir_entry = tk.Entry(frame_produto, width=5)
+            reduzir_entry.pack()
+            reduzir_entry.lift()
+            reduzir_button = tk.Button(frame_produto, text="Go", font=("Century Gothic", 10), width=2, height=0, command=lambda id=item_id, entry=reduzir_entry: reduzir_estoque(id, entry))
+            reduzir_button.pack()
 
 
             

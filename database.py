@@ -13,6 +13,8 @@ def criar_tabela_produtos():
                 estoque INTEGER NOT NULL
             )
         ''')
+        conn.commit()
+        conn.close()
 
 def obter_produtos():
     with conectar() as conn:
