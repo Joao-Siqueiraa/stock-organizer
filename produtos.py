@@ -1,40 +1,19 @@
 import sqlite3
 from tkinter import messagebox
 import tkinter as tk
+from database import obter_produtos,obter_estoque
+from vendas import subtrair_estoque
 
-
-def buscar_produtos(busca=None):
-    produtos = listar_produtos(busca)
-    return produtos
-
-
-def listar_produtos(busca=None):
-    conn = sqlite3.connect('estoque.db')
-    cursor = conn.cursor()
-
-    if busca:
-        # Usar a cláusula LIKE com parâmetro correto para a consulta
-        cursor.execute("SELECT nome, quantidade FROM produtos WHERE nome LIKE ?", ('%' + busca + '%',))
-    else:
-        cursor.execute("SELECT nome, quantidade FROM produtos")
-    
-    produtos = cursor.fetchall()
-    conn.close()
-    return produtos
-
-
-def adicionar_produto(nome, quantidade):
+def adicionar_produto(nome, estoque):
     try:
-        conn = sqlite3.connect('estoque.db')
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO produtos (nome, quantidade) VALUES (?, ?)", (nome, quantidade))
-        conn.commit()
-        conn.close()
+        with sqlite3.connect('estoque.db') as conn:
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO produtos (nome, estoque) VALUES (?, ?)", (nome, estoque))
+            conn.commit()
         return True
     except Exception as e:
         print(f"Erro ao adicionar produto: {e}")
         return False
-
 
 def adicionar_produto_janela():
     # Janela de Adicionar Produto
@@ -49,50 +28,121 @@ def adicionar_produto_janela():
     nome_produto.pack(pady=5)
 
     # Label e Entry para a quantidade do produto
-    tk.Label(tl, text="Quantidade:", font=("Century Gothic", 12), bg="lightgray").pack(pady=5)
-    quantidade_produto = tk.Entry(tl, font=("Century Gothic", 12))
-    quantidade_produto.pack(pady=5)
+    tk.Label(tl, text="estoque:", font=("Century Gothic", 12), bg="lightgray").pack(pady=5)
+    estoque_produto = tk.Entry(tl, font=("Century Gothic", 12))
+    estoque_produto.pack(pady=5)
 
     def salvar_produto():
-        # Pega o nome e a quantidade do produto
         nome = nome_produto.get().strip()
-        quantidade = quantidade_produto.get().strip()
+        estoque = estoque_produto.get().strip()
 
-        if not nome or not quantidade.isdigit():
+        if not nome or not estoque.isdigit():
             messagebox.showerror("Erro", "Nome inválido ou quantidade não numérica")
             return  # Sai da função sem salvar o produto errado
 
-        adicionar_produto(nome, int(quantidade))
+        adicionar_produto(nome, int(estoque))
         messagebox.showinfo("Sucesso", "Produto adicionado com sucesso!")
         tl.destroy()
 
     tk.Button(tl, text="Salvar", font=("Century Gothic", 12), command=salvar_produto).pack(pady=10)
     tl.mainloop()
 
+def atualizar_lista_produtos(frame):
+    produtos = obter_produtos()
+    for widget in frame.winfo_children():
+        widget.destroy()
+    for idx, item in enumerate(produtos):
+        frame_produto = tk.Frame(frame, bg="MIDNIGHTBLUE")
+        frame_produto.pack(fill="x", padx=5, pady=5)
 
-def atualizar_lista_produtos(rightframe, busca=None):
-    produtos = buscar_produtos(busca)
+        item_id = item["id"]
+        nome_produto = item["nome"]
+        estoque = item["estoque"]
+
+        label = tk.Label(frame_produto, text=f"{nome_produto}, Estoque: {estoque}", font=("Century Gothic", 12), bg="MIDNIGHTBLUE", fg='white')
+        label.pack(padx=5,pady=12,anchor="w")
+
+        frame_entry_button = tk.Frame(frame_produto, bg="MIDNIGHTBLUE")  
+        frame_entry_button.place(x=540,y=5)
+        
+        reduzir_entry = tk.Entry(frame_entry_button, width=5)
+        reduzir_entry.pack(padx=1, pady=1)
+        
+        reduzir_button = tk.Button(frame_entry_button, text="Go", font=("Century Gothic", 10), width=2, height=0, command=lambda id=item_id, entry=reduzir_entry: reduzir_estoque(id, entry))
+        reduzir_button.pack(side="right", padx=1, pady=1)
+
+def reduzir_estoque(produto_id, reduzir_entry):
+    try:
+        quantidade = reduzir_entry.get()  # Pegando o valor da entry
+        print(f"Valor da entry: {quantidade}")
+        
+        # Verificando se a entrada não está vazia
+        if quantidade == "":
+            messagebox.showerror("Erro", "Por favor, insira uma quantidade.")
+            return
+        
+        quantidade = int(quantidade)  # Convertendo a entrada para um número inteiro
+        
+        # Verificando se a quantidade é maior que 0
+        if quantidade <= 0:
+            messagebox.showerror("Erro", "A quantidade deve ser maior que 0!")
+            return
+        
+    except ValueError:
+        messagebox.showerror("Erro", "Por favor, insira um número válido!")
+        return
+
+    # Obter o estoque atual do produto
+    estoque_atual = obter_estoque(produto_id)
     
-    # Limpa a lista de produtos exibida
-    for widget in rightframe.winfo_children():
+    # Verificar se há estoque suficiente
+    if quantidade > estoque_atual:
+        messagebox.showerror("Erro", "Estoque insuficiente!")
+        return
+
+    # Atualizar o estoque no banco de dados
+    novo_estoque = estoque_atual - quantidade
+    atualizar_estoque(produto_id, novo_estoque)
+    
+    # Exibir uma mensagem de sucesso
+    messagebox.showinfo("Sucesso", f"Estoque reduzido com sucesso! Novo estoque: {novo_estoque}")
+
+
+def buscar_produtos_gui(entry, frame):
+    busca = entry.get().strip().lower()
+    produtos = obter_produtos()
+
+    # Limpar o frame antes de adicionar os produtos
+    for widget in frame.winfo_children():
         widget.destroy()
 
-    # Adiciona o cabeçalho
-    itemlabel = tk.Label(rightframe, text="Item", font=("Century Gothic", 20), bg="MIDNIGHTBLUE", fg="white")
-    itemlabel.place(x=50, y=10)
-    vendalabel = tk.Label(rightframe, text="Venda", font=("Century Gothic", 20), bg="MIDNIGHTBLUE", fg="white")
-    vendalabel.place(x=220, y=10)
-    estoquelabel = tk.Label(rightframe, text="Estoque", font=("Century Gothic", 20), bg="MIDNIGHTBLUE", fg="white")
-    estoquelabel.place(x=420, y=10)
+    # Filtrar e mostrar os produtos que contêm a busca no nome
+    for item in produtos:
+        if busca in item["nome"].lower():
+            frame_produto = tk.Frame(frame, bg="MIDNIGHTBLUE")
+            frame_produto.pack(fill="x", padx=5, pady=5)
 
-    # Recupera os produtos da função listar_produtos
-    y_offset = 50  # Posição inicial para os produtos na tela
-    for nome, quantidade in produtos:
-        tk.Label(rightframe, text=nome, font=("Century Gothic", 14), bg="MIDNIGHTBLUE", fg="white").place(x=50, y=y_offset)
-        tk.Label(rightframe, text=str(quantidade), font=("Century Gothic", 14), bg="MIDNIGHTBLUE", fg="white").place(x=420, y=y_offset)
-        y_offset += 30  # Move os próximos produtos para baixo
+            item_id = item["id"]
+            nome_produto = item["nome"]
+            estoque = item["estoque"]
+
+            label = tk.Label(frame_produto, text=f"{nome_produto}, Estoque: {estoque}", font=("Century Gothic", 12), bg="MIDNIGHTBLUE", fg='white')
+            label.pack(padx=5,pady=12,anchor="w")
+
+            frame_entry_button = tk.Frame(frame_produto, bg="MIDNIGHTBLUE")  
+            frame_entry_button.place(x=540,y=5)
+        
+            reduzir_entry = tk.Entry(frame_entry_button, width=5)
+            reduzir_entry.pack(padx=1, pady=1)
+        
+            reduzir_button = tk.Button(frame_entry_button, text="Go", font=("Century Gothic", 10), width=2, height=0, command=lambda id=item_id, entry=reduzir_entry: reduzir_estoque(id, entry))
+            reduzir_button.pack(side="right", padx=1, pady=1)
 
 
-def buscar_produtos_gui(pesquisa_entry, rightframe):
-    busca = pesquisa_entry.get().strip()  # Pega o texto da entrada de pesquisa
-    atualizar_lista_produtos(rightframe, busca)  # Atualiza a lista com o nome buscado
+            
+def atualizar_estoque(produto_id, novo_estoque):
+    conn = sqlite3.connect('estoque.db')  # Substitua pelo seu banco de dados correto
+    cursor = conn.cursor()
+    cursor.execute("UPDATE produtos SET estoque = ? WHERE id = ?", (novo_estoque, produto_id))
+    conn.commit()
+    conn.close()

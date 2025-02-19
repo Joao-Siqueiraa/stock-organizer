@@ -1,10 +1,17 @@
-from tkinter import messagebox
-from estoque import atualizar_produto
+import tkinter.messagebox
+from estoque import verificar_estoque
 
-def registrar_venda(produto_id, quantidade_vendida):
-    if atualizar_produto(produto_id, quantidade_vendida):
-        messagebox.showinfo('Venda Confirmada', f'{quantidade_vendida} unidades vendidas com sucesso!')
-        return True
+def subtrair_estoque(produto_nome, quantidade):
+    estoque_atual = verificar_estoque(produto_nome)
+    
+    if quantidade <= 0:
+        tkinter.messagebox.showwarning("Valor inválido", "A quantidade deve ser maior que 0.")
+        return False
+
+    if estoque_atual >= quantidade:
+        novo_estoque = estoque_atual - quantidade
+        # Aqui você colocaria o código de atualização do estoque no banco
+        return novo_estoque
     else:
-        messagebox.showwarning('Estoque Insuficiente', 'Quantidade vendida maior que o estoque disponível.')
+        tkinter.messagebox.showwarning("Erro", "Estoque insuficiente!")
         return False
