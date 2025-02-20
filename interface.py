@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import Scrollbar
-from produtos import adicionar_produto_janela, buscar_produtos_gui,reduzir_estoque
-from database import obter_produtos,criar_tabela_produtos
+from produtos import adicionar_produto_janela, buscar_produtos_gui, reduzir_estoque
+from database import obter_produtos, criar_tabela_produtos
 
 def criar_interface():
     root = tk.Tk()
@@ -10,7 +10,6 @@ def criar_interface():
     root.configure(bg="white")
     root.iconbitmap(default="assets/icone.ico")
         
-
     # Frame azul da esquerda (MENU)
     leftframe = tk.Frame(root, width=205, height=600, bg="MIDNIGHTBLUE", relief="raised")
     leftframe.place(x=0, y=1, relheight=1)
@@ -38,32 +37,31 @@ def criar_interface():
     canvas.configure(yscrollcommand=scrollbar.set)
     
     def atualizar_lista_produtos(frame, canvas):
-        # Criar o Canvas
         produtos = obter_produtos()
 
         # Limpa a área antes de atualizar
-        for widget in frame.winfo_children():widget.destroy()
+        for widget in frame.winfo_children(): 
+            widget.destroy()
 
         for item in produtos:
-            frame_produto = tk.Frame(frame, bg="MIDNIGHTBLUE",)
+            frame_produto = tk.Frame(frame, bg="MIDNIGHTBLUE")
             frame_produto.pack(fill="x", padx=5, pady=5)
 
             item_id = item["id"]
             nome_produto = item["nome"]
             estoque = item["estoque"]
 
-            # Usar Label ao invés de Canvas
-            label = tk.Label(frame_produto, text=f"{nome_produto}, Estoque: {estoque}",font=("Century Gothic", 12), bg="MIDNIGHTBLUE", fg="white")
+            label = tk.Label(frame_produto, text=f"{nome_produto}, Estoque: {estoque}", font=("Century Gothic", 12), bg="MIDNIGHTBLUE", fg="white")
             label.pack(padx=5, pady=5)
 
             frame_entry_button = tk.Frame(frame_produto, bg="MIDNIGHTBLUE")
-            frame_entry_button.place(x=500, y=5)
+            frame_entry_button.pack(pady=5)
 
-            reduzir_entry = tk.Entry(frame_produto, width=5)
-            reduzir_entry.pack()
+            reduzir_entry = tk.Entry(frame_entry_button, width=5)
+            reduzir_entry.pack(side=tk.LEFT, padx=2)
 
-            reduzir_button = tk.Button(frame_produto, text="Go", font=("Century Gothic", 10), width=2, height=0, command=lambda id=item_id, entry=reduzir_entry: reduzir_estoque(id, entry))
-            reduzir_button.pack()
+            reduzir_button = tk.Button(frame_entry_button, text="-", font=("Century Gothic", 10), width=2, height=0, command=lambda id=item_id, entry=reduzir_entry: reduzir_estoque(id, entry))
+            reduzir_button.pack(side=tk.LEFT, padx=2)
 
     # Botão de adicionar produto
     botaoadd = tk.Button(leftframe, text="Add item", width=20, command=adicionar_produto_janela)
@@ -79,11 +77,10 @@ def criar_interface():
     pesquisa_button.place(x=10, y=130)
 
     # Botão para atualizar a página
-    atualizar_button = tk.Button(leftframe, text="Atualizar Página", font=("Century Gothic", 12), command=lambda: atualizar_lista_produtos(scrollable_frame,canvas))
+    atualizar_button = tk.Button(leftframe, text="Atualizar Página", font=("Century Gothic", 12), command=lambda: atualizar_lista_produtos(scrollable_frame, canvas))
     atualizar_button.place(x=10, y=180)
 
     # Atualizar a lista de produtos inicialmente
-    atualizar_lista_produtos(scrollable_frame,canvas)
+    atualizar_lista_produtos(scrollable_frame, canvas)
     
     root.mainloop()
-    
