@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import Scrollbar
-from produtos import adicionar_produto_janela, buscar_produtos_gui, reduzir_estoque
+from produtos import adicionar_produto_janela, buscar_produtos_gui, reduzir_estoque,somar_estoque,resetar_estoque
 from database import obter_produtos, criar_tabela_produtos
 
 def criar_interface():
@@ -63,6 +63,9 @@ def criar_interface():
             reduzir_button = tk.Button(frame_entry_button, text="-", font=("Century Gothic", 10), width=2, height=0, command=lambda id=item_id, entry=reduzir_entry: reduzir_estoque(id, entry))
             reduzir_button.pack(side=tk.LEFT, padx=2)
 
+            somar_button = tk.Button(frame_entry_button,text="+",font=("Century Gothic", 10),width=2, height=0, command=lambda id=item_id, entry=reduzir_entry: somar_estoque(id, entry))
+            somar_button.pack(side=tk.LEFT, padx=2)
+
     # Botão de adicionar produto
     botaoadd = tk.Button(leftframe, text="Add item", width=20, command=adicionar_produto_janela)
     botaoadd.place(x=10, y=10)
@@ -79,6 +82,9 @@ def criar_interface():
     # Botão para atualizar a página
     atualizar_button = tk.Button(leftframe, text="Atualizar Página", font=("Century Gothic", 12), command=lambda: atualizar_lista_produtos(scrollable_frame, canvas))
     atualizar_button.place(x=10, y=180)
+
+    reset_button = tk.Button(leftframe, text="Resetar estoque", font=("Century Gothic", 12), command=resetar_estoque)
+    reset_button.place(x=10,y=220)
 
     # Atualizar a lista de produtos inicialmente
     atualizar_lista_produtos(scrollable_frame, canvas)

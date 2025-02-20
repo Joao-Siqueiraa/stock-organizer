@@ -8,6 +8,11 @@ import sqlite3
 def conectar():
     return sqlite3.connect('estoque.db')
 
+
+
+
+
+
 def criar_tabela_produtos():
     try:
         with conectar() as conn:
