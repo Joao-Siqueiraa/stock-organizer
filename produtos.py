@@ -1,20 +1,34 @@
 import sqlite3
 from tkinter import messagebox
 import tkinter as tk
-from database import obter_produtos,obter_estoque
+from database import obter_produtos, obter_estoque
 from vendas import subtrair_estoque
 
+# Função para adicionar produto ao banco de dados
 def adicionar_produto(nome, estoque):
     try:
-        with sqlite3.connect('estoque.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO produtos (nome, estoque) VALUES (?, ?)", (nome, estoque))
-            conn.commit()
-        return True
-    except Exception as e:
-        print(f"Erro ao adicionar produto: {e}")
-        return False
+        # Conectando ao banco de dados
+        conn = sqlite3.connect('estoque.db')  # AQUI O BANCO CORRETO
+        c = conn.cursor()
+        
+        # Criando a tabela, caso não exista
+        c.execute('''CREATE TABLE IF NOT EXISTS produtos
+                     (id INTEGER PRIMARY KEY, nome TEXT, estoque INTEGER)''')
+        
+        # Inserindo o produto na tabela correta
+        c.execute("INSERT INTO produtos (nome, estoque) VALUES (?, ?)", (nome, estoque))  # CORRIGIDO PARA produtos
+        
+        # Salvando e fechando a conexão
+        conn.commit()
+        conn.close()
+        
+        print("Produto salvo com sucesso!")  # Depuração
 
+    except Exception as e:
+        print(f"Erro ao salvar produto: {e}")  # Depuração
+
+
+# Função para adicionar o produto com interface gráfica
 def adicionar_produto_janela():
     # Janela de Adicionar Produto
     tl = tk.Toplevel()
@@ -28,7 +42,7 @@ def adicionar_produto_janela():
     nome_produto.pack(pady=5)
 
     # Label e Entry para a quantidade do produto
-    tk.Label(tl, text="estoque:", font=("Century Gothic", 12), bg="lightgray").pack(pady=5)
+    tk.Label(tl, text="Estoque:", font=("Century Gothic", 12), bg="lightgray").pack(pady=5)
     estoque_produto = tk.Entry(tl, font=("Century Gothic", 12))
     estoque_produto.pack(pady=5)
 
@@ -40,21 +54,17 @@ def adicionar_produto_janela():
             messagebox.showerror("Erro", "Nome inválido ou quantidade não numérica")
             return  # Sai da função sem salvar o produto errado
 
+        # Chama a função para salvar o produto no banco de dados
         adicionar_produto(nome, int(estoque))
+        
+        # Confirmação de sucesso
         messagebox.showinfo("Sucesso", "Produto adicionado com sucesso!")
         tl.destroy()
 
     tk.Button(tl, text="Salvar", font=("Century Gothic", 12), command=salvar_produto).pack(pady=10)
     tl.mainloop()
 
-
-    
-        
-    
-  
-
-
-
+# Função para reduzir o estoque
 def reduzir_estoque(produto_id, reduzir_entry):
     try:
         quantidade = reduzir_entry.get()  # Pegando o valor da entry
@@ -91,7 +101,7 @@ def reduzir_estoque(produto_id, reduzir_entry):
     # Exibir uma mensagem de sucesso
     messagebox.showinfo("Sucesso", f"Estoque reduzido com sucesso! Novo estoque: {novo_estoque}")
 
-
+# Função para buscar produtos
 def buscar_produtos_gui(entry, frame):
     busca = entry.get().strip().lower()
     produtos = obter_produtos()
@@ -120,10 +130,10 @@ def buscar_produtos_gui(entry, frame):
             reduzir_entry.pack()
             reduzir_entry.lift()
             reduzir_button = tk.Button(frame_produto, text="Go", font=("Century Gothic", 10), width=2, height=0, command=lambda id=item_id, entry=reduzir_entry: reduzir_estoque(id, entry))
+
             reduzir_button.pack()
 
-
-            
+# Função para atualizar o estoque
 def atualizar_estoque(produto_id, novo_estoque):
     conn = sqlite3.connect('estoque.db')  # Substitua pelo seu banco de dados correto
     cursor = conn.cursor()

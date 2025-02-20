@@ -3,19 +3,30 @@ import sqlite3
 def conectar():
     return sqlite3.connect('estoque.db')
 
-def criar_tabela_produtos():
-    with conectar() as conn:
-        c = conn.cursor()
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS produtos (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nome TEXT NOT NULL,
-                estoque INTEGER NOT NULL
-            )
-        ''')
-        conn.commit()
-        conn.close()
+import sqlite3
 
+def conectar():
+    return sqlite3.connect('estoque.db')
+
+def criar_tabela_produtos():
+    try:
+        with conectar() as conn:
+            c = conn.cursor()
+            # Cria a tabela se ela não existir
+            c.execute('''
+                CREATE TABLE IF NOT EXISTS produtos (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nome TEXT NOT NULL,
+                    estoque INTEGER NOT NULL
+                )
+            ''')
+            conn.commit()
+        print("Tabela 'produtos' criada ou já existente.")
+    except Exception as e:
+        print(f"Erro ao criar tabela: {e}")
+
+
+        
 def obter_produtos():
     with conectar() as conn:
         cursor = conn.cursor()
