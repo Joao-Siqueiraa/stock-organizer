@@ -83,8 +83,8 @@ def criar_interface():
     atualizar_button = tk.Button(leftframe, text="Atualizar Página", font=("Century Gothic", 12), command=lambda: atualizar_lista_produtos(scrollable_frame, canvas))
     atualizar_button.place(x=10, y=180)
 
-    reset_button = tk.Button(leftframe, text="Resetar estoque", font=("Century Gothic", 12), command=resetar_estoque)
-    reset_button.place(x=10,y=220)
+    #reset_button = tk.Button(leftframe, text="Resetar estoque", font=("Century Gothic", 12), command=resetar_estoque)
+    #reset_button.place(x=10,y=220)
 
     # Atualizar a lista de produtos inicialmente
     atualizar_lista_produtos(scrollable_frame, canvas)
