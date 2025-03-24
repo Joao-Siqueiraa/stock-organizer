@@ -186,3 +186,22 @@ def atualizar_estoque(produto_id, novo_estoque):
     cursor.execute("UPDATE produtos SET estoque = ? WHERE id = ?", (novo_estoque, produto_id))
     conn.commit()
     conn.close()
+
+import sqlite3
+from tkinter import messagebox
+
+def apagar_produto(produto_id):
+    confirmacao = messagebox.askyesno("Confirmação", "Tem certeza que deseja apagar este produto?")
+    
+    if confirmacao:
+        conexao = sqlite3.connect('estoque.db')
+        cursor = conexao.cursor()
+
+        try:
+            cursor.execute("DELETE FROM produtos WHERE id = ?", (produto_id,))
+            conexao.commit()
+            messagebox.showinfo("Sucesso", "Produto apagado com sucesso!")
+        except Exception as e:
+            messagebox.showerror("Erro", f"Não foi possível apagar o produto: {e}")
+        finally:
+            conexao.close()
