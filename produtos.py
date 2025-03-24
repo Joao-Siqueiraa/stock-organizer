@@ -62,6 +62,8 @@ def adicionar_produto_janela():
         tl.destroy()
 
     tk.Button(tl, text="Salvar", font=("Century Gothic", 12), command=salvar_produto).pack(pady=10)
+
+    tl.bind("<Return>", lambda event: salvar_produto())
     tl.mainloop()
 
 def resetar_estoque(produto_id):

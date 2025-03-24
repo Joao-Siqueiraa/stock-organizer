@@ -86,6 +86,8 @@ def criar_interface():
     atualizar_button = tk.Button(leftframe, text="Atualizar Página", font=("Century Gothic", 12), command=lambda: atualizar_lista_produtos(scrollable_frame, canvas))
     atualizar_button.place(x=10, y=180)
 
+    root.bind("<n>", lambda event: adicionar_produto_janela())
+
     # Atualizar a lista de produtos inicialmente
     atualizar_lista_produtos(scrollable_frame, canvas)
 
