@@ -33,7 +33,7 @@ def adicionar_produto_janela():
     # Janela de Adicionar Produto
     tl = tk.Toplevel()
     tl.title("Adicionar Produto")
-    tl.geometry("300x200")
+    tl.geometry("900x800")
     tl.configure(bg='lightgray')
 
     # Label e Entry para o nome do produto
