@@ -2,14 +2,21 @@ import tkinter as tk
 from tkinter import Scrollbar
 from produtos import adicionar_produto_janela, buscar_produtos_gui, reduzir_estoque, somar_estoque, resetar_estoque,apagar_produto
 from database import obter_produtos, criar_tabela_produtos
+import os
+import sys
 
 def criar_interface():
     root = tk.Tk()
     root.title("Programa de Estoque")
     root.geometry("800x600")
     root.configure(bg="white")
-    root.iconbitmap(default="assets/icone.ico")
-        
+    # Caminho do ícone compatível com o PyInstaller
+    def resource_path(relative_path):
+        if hasattr(sys, '_MEIPASS'):
+            return os.path.join(sys._MEIPASS, relative_path)
+        return os.path.join(os.path.abspath("."), relative_path)
+    icone_path = resource_path("assets/icone.ico")
+    root.iconbitmap(default=icone_path)
     # Frame azul da esquerda (MENU)
     leftframe = tk.Frame(root, width=205, height=600, bg="MIDNIGHTBLUE", relief="raised")
     leftframe.place(x=0, y=1, relheight=1)

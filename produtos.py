@@ -98,9 +98,9 @@ def somar_estoque(produto_id, reduzir_entry):
     estoque_atual = obter_estoque(produto_id)
     
     # Verificar se há estoque suficiente
-    if quantidade > estoque_atual:
-        messagebox.showerror("Erro", "Estoque insuficiente!")
-        return
+    #if quantidade > estoque_atual:
+    #    messagebox.showerror("Erro", "Estoque insuficiente!")
+    #    return
 
     # Atualizar o estoque no banco de dados
     novo_estoque = estoque_atual + quantidade
